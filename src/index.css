@@ -1,0 +1,161 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* LIGHT (warm ivory) */
+  --bg: #F7F4EC;
+  --bg-2: #EFEBDF;
+  --card: #FFFFFF;
+  --border: #E2E0D6;
+  --text: #12261B;
+  --text-2: #4C5F53;
+  --text-muted: #596A5F;
+  --emerald: #16834A;
+  --bright: #147642;
+  --mint: #CDEFD9;
+  --gold: #7A5E29;
+  --cell-empty: #E6EAE4;
+  --cell-future: #F0EFE8;
+}
+
+.dark {
+  --bg: #0C1410;
+  --bg-2: #111C16;
+  --card: #17241C;
+  --border: #22322A;
+  --text: #F4F6F1;
+  --text-2: #A2B0A6;
+  --text-muted: #88968C;
+  --emerald: #16834A;
+  --bright: #35D879;
+  --mint: #A8EBC0;
+  --gold: #C7A66A;
+  --cell-empty: #252F29;
+  --cell-future: #1B241F;
+}
+
+@theme {
+  --font-sans: "Geist Variable", "Geist", system-ui, -apple-system, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+}
+
+@layer base {
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--bright);
+    outline-offset: 2px;
+  }
+}
+
+.font-serif-editorial {
+  font-family: "Instrument Serif", Georgia, serif;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes gs-dot-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes gs-dot-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.gs-square-complete-pop {
+  animation: gs-dot-pop 180ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.gs-square-ripple::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  border: 1.5px solid var(--bright);
+  pointer-events: none;
+  animation: gs-dot-ripple 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes gs-leaf-drift-a {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  50% {
+    transform: translate(6px, -10px) rotate(3deg);
+  }
+}
+
+@keyframes gs-leaf-drift-b {
+  0%, 100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  50% {
+    transform: translate(-8px, 8px) rotate(-2.5deg);
+  }
+}
+
+.gs-leaf-drift-a {
+  animation: gs-leaf-drift-a 20s ease-in-out infinite;
+}
+
+.gs-leaf-drift-b {
+  animation: gs-leaf-drift-b 24s ease-in-out infinite;
+}
+
+/* Custom subtle scrollbar for horizontal calendar scrolling */
+.gs-cal-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.gs-cal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gs-cal-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .gs-square-complete-pop,
+  .gs-square-ripple::after,
+  .gs-leaf-drift-a,
+  .gs-leaf-drift-b {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 150ms !important;
+  }
+}

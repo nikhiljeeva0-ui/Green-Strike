@@ -1,0 +1,6 @@
+{
+  "name": "GREENSTRIKE",
+  "description": "Every Day Counts. Build better habits, show up consistently, and watch your progress grow one green dot at a time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

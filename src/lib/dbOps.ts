@@ -6,8 +6,11 @@ export const MAX_ACTIVE_HABITS = 30;
 export const COMPLETION_PAGE_SIZE = 500;
 export const DELETE_BATCH_SIZE = 400;
 
-export function completionsCacheKey(habitId: string): readonly ['completions', string] {
-  return ['completions', habitId] as const;
+export function completionsCacheKey(
+  habitId: string,
+  userId?: string
+): readonly ['completions', string, string] {
+  return ['completions', userId ?? 'anon', habitId] as const;
 }
 
 export function normalizeReminderTime(value?: string | null): string | null {

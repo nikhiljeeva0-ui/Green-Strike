@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -61,6 +62,15 @@ function friendlyAuthError(err: unknown): string {
       return 'Please enter a valid email address.';
     case 'auth/popup-closed-by-user':
       return 'Sign-in window was closed before completing.';
+    case 'auth/popup-blocked':
+      return 'Sign-in popup was blocked by your browser. Please allow popups for this site and try again.';
+    case 'auth/unauthorized-domain': {
+      const host =
+        typeof window !== 'undefined' && window.location?.hostname
+          ? window.location.hostname
+          : 'this domain';
+      return `Google sign-in is not authorized for "${host}". Add "${host}" in Firebase Console → Authentication → Settings → Authorized domains (or use the hosted preview URL).`;
+    }
     case 'auth/operation-not-allowed':
       return 'Email/password sign-in is not enabled on this Firebase project. Please use Google Sign-In or enable Email/Password in Firebase Console.';
     case 'auth/requires-recent-login':
@@ -77,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const prevUidRef = useRef<string | null>(null);
 
   const { theme, isDark, setTheme: setLocalTheme } = useTheme(profile?.theme);
 
@@ -89,6 +100,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (nextUser) => {
+      const nextUid = nextUser?.uid ?? null;
+      if (prevUidRef.current !== nextUid) {
+        prevUidRef.current = nextUid;
+        setProfile(null);
+        queryClient.clear();
+      }
       setUser(nextUser);
       if (nextUser) {
         try {
@@ -96,9 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (err) {
           console.error('Failed to load profile:', err);
         }
-      } else {
-        setProfile(null);
-        queryClient.clear();
       }
       setAuthReady(true);
     });

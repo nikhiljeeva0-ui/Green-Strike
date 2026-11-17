@@ -25,7 +25,10 @@ export function useHabits(userId: string | undefined) {
 
 export function useCompletions(userId: string | undefined, habitId: string | undefined) {
   return useQuery({
-    queryKey: habitId ? completionsCacheKey(habitId) : (['completions', undefined] as const),
+    queryKey:
+      userId && habitId
+        ? completionsCacheKey(habitId, userId)
+        : (['completions', userId ?? 'anon', undefined] as const),
     queryFn: () => fetchHabitCompletions(userId!, habitId!),
     enabled: Boolean(userId && habitId),
     staleTime: 60_000,
@@ -64,7 +67,7 @@ export function useToggleCompletion(userId: string | undefined, today: DateKey) 
       if (inFlightKeysRef.current.has(lockKey)) {
         return { skipped: true, habitId };
       }
-      const key = completionsCacheKey(habitId);
+      const key = completionsCacheKey(habitId, userId);
       await queryClient.cancelQueries({ queryKey: key });
       const previous = queryClient.getQueryData<Set<DateKey>>(key);
       const next = new Set(previous ?? []);
@@ -78,20 +81,24 @@ export function useToggleCompletion(userId: string | undefined, today: DateKey) 
     },
     onError: (err, _vars, ctx) => {
       if (ctx && !ctx.skipped && ctx.previous) {
-        queryClient.setQueryData(completionsCacheKey(ctx.habitId), ctx.previous);
+        queryClient.setQueryData(completionsCacheKey(ctx.habitId, userId), ctx.previous);
       }
       showToast(
         err instanceof Error ? err.message : 'Could not update completion.',
         'error'
       );
       if (ctx) {
-        void queryClient.invalidateQueries({ queryKey: completionsCacheKey(ctx.habitId) });
+        void queryClient.invalidateQueries({
+          queryKey: completionsCacheKey(ctx.habitId, userId),
+        });
       }
     },
     onSuccess: (_data, vars, ctx) => {
       // Optimistic cache update already matches Firestore write; only refetch if cache had no snapshot.
       if (ctx && !ctx.skipped && ctx.previous === undefined) {
-        void queryClient.invalidateQueries({ queryKey: completionsCacheKey(vars.habitId) });
+        void queryClient.invalidateQueries({
+          queryKey: completionsCacheKey(vars.habitId, userId),
+        });
       }
     },
   });
@@ -178,7 +185,7 @@ export function useDeleteHabit(userId: string | undefined) {
       return habitId;
     },
     onSuccess: (habitId) => {
-      queryClient.removeQueries({ queryKey: ['completions', habitId] });
+      queryClient.removeQueries({ queryKey: completionsCacheKey(habitId, userId) });
       void queryClient.invalidateQueries({ queryKey: ['habits', userId] });
       showToast('Habit deleted.', 'success');
     },

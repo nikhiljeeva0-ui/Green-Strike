@@ -117,9 +117,11 @@ test('Task 3: validateImageFile enforces JPEG/PNG/WebP and strictly < 2 MB', () 
 test('Task 5.1: toggling habit A never alters habit B Set, stats, or cache key', async () => {
   const today = '2026-11-16';
   const cache = new Map<string, Set<DateKey>>();
-  const keyA = completionsCacheKey('habit-a').join(':');
-  const keyB = completionsCacheKey('habit-b').join(':');
+  const keyA = completionsCacheKey('habit-a', 'user-1').join(':');
+  const keyB = completionsCacheKey('habit-b', 'user-1').join(':');
+  const keyOtherUserSameHabit = completionsCacheKey('habit-a', 'user-2').join(':');
   assert.notEqual(keyA, keyB);
+  assert.notEqual(keyA, keyOtherUserSameHabit);
 
   cache.set('habit-a', new Set(['2026-11-15']));
   cache.set('habit-b', new Set(['2026-11-14', '2026-11-15']));
